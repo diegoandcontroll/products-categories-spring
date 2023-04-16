@@ -1,0 +1,13 @@
+version: '2.0'
+services:
+  db-spring:
+    container_name: bootcampspring
+    image: 'postgres:13'
+    environment:
+      POSTGRES_PASSWORD: btspring
+      POSTGRES_USER: btspring
+      POSTGRES_DB: btspring
+    volumes:
+      - ./data_pg:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
