@@ -2,12 +2,18 @@ server:
   error:
     include-stacktrace: on-param
 spring:
+  profiles:
+    active:
+    - dev
   jpa:
-    database: postgresql
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-  datasource:
-    url: jdbc:postgresql://localhost:5432/btspring
-    username: btspring
-    password: btspring
+    open-in-view: false
+# spring:
+#   jpa:
+#     database: postgresql
+#     show-sql: true
+#     hibernate:
+#       ddl-auto: update
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/btspring
+#     username: btspring
+#     password: btspring

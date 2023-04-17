@@ -1,0 +1,17 @@
+server:
+  error:
+    include-stacktrace: on-param
+spring:
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        hbm2ddl:
+          delimiter: 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/btspring
+    username: btspring
+    password: btspring
