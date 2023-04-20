@@ -1,49 +1,68 @@
 package com.br.bootcampspring.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.br.bootcampspring.domain.Categories;
+import com.br.bootcampspring.dtos.IRequesCategory;
 import com.br.bootcampspring.repositories.CategoriesRepository;
-import lombok.RequiredArgsConstructor;
+import com.br.bootcampspring.repositories.exceptions.ResourceNotFoundException;
+
+import lombok.var;
 
 @Service
-@RequiredArgsConstructor
 public class CategoriesService {
-  private final CategoriesRepository categoriesRepository;
+  @Autowired
+  CategoriesRepository categoriesRepository;
 
-  public List<Categories> findAllCategoriesNoPaginable(){
+  public List<Categories> findAllCategoriesNoPaginable() {
     return categoriesRepository.findAll();
   }
-  public Page<Categories> findAll(Pageable pageable){
+
+  public Page<Categories> findAll(Pageable pageable) {
     return categoriesRepository.findAll(pageable);
   }
 
-  public Categories findId(UUID id){
-    return categoriesRepository.findById(id)
-    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NOT FOUND ID"+ id));
+  public IRequesCategory findId(UUID id) {
+    Optional<Categories> catExistsRef = categoriesRepository.findById(id);
+    Categories categoriesExist = catExistsRef.orElseThrow(() -> new ResourceNotFoundException("Category by id not found"));
+    return new IRequesCategory(categoriesExist);
   }
 
   @Transactional
-  public Categories create(Categories categorie){
-    return categoriesRepository.save(categorie);
+  public IRequesCategory create(IRequesCategory category) {
+    var obj = new Categories();
+    BeanUtils.copyProperties(category, obj);
+    categoriesRepository.save(obj);
+    IRequesCategory objReturn = new IRequesCategory();
+    objReturn.setId(obj.getId());
+    objReturn.setName(obj.getName());
+    return objReturn;
   }
 
   @Transactional
-  public Categories update(Categories categorie){
-    findId(categorie.getId());
-    return categoriesRepository.save(categorie);
+  public IRequesCategory update(IRequesCategory category) {
+    Categories obj = categoriesRepository.findById(category.getId()).orElseThrow(() -> new ResourceNotFoundException("Category by id not found"));
+    BeanUtils.copyProperties(category, obj);
+    categoriesRepository.save(obj);
+    IRequesCategory objReturn = new IRequesCategory();
+    objReturn.setId(obj.getId());
+    objReturn.setName(obj.getName());
+    return objReturn;
   }
-  public void remove(UUID id){
-    Categories categoryExists = findId(id);
-    categoriesRepository.delete(categoryExists);
+
+  @Transactional
+  public void remove(UUID id) {
+    Optional<Categories> objExists = categoriesRepository.findById(id);
+    categoriesRepository.delete(objExists.get());
   }
 }

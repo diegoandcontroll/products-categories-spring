@@ -10,16 +10,14 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "categories")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Table(name = "categories")
 public class Categories implements Serializable{
   private static final long serialVersionUID = 1L;
 
@@ -28,5 +26,4 @@ public class Categories implements Serializable{
   private UUID id;
 
   private String name;
-
 }

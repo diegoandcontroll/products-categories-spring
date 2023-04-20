@@ -2,8 +2,9 @@ package com.br.bootcampspring.controller;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,48 +19,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.br.bootcampspring.domain.Categories;
-import com.br.bootcampspring.dtos.IRequestCreateCategory;
-import com.br.bootcampspring.dtos.IRequestUpdateCategory;
+import com.br.bootcampspring.dtos.IRequesCategory;
 import com.br.bootcampspring.services.CategoriesService;
 
 @RestController
 @RequestMapping("categories")
-
 public class CategoriesController {
-  private final CategoriesService categoriesService;
-  public CategoriesController(CategoriesService categoriesService) {
-    this.categoriesService = categoriesService;
-  }
+  @Autowired
+  CategoriesService categoriesService;
+ 
   @GetMapping()
   public ResponseEntity<Page<Categories>> findAllPaginable(Pageable pageable){
     return ResponseEntity.ok(categoriesService.findAll(pageable));
   }
 
   @GetMapping(path = "all")
-  public ResponseEntity<List<Categories>> findAll(){
-    return ResponseEntity.ok(categoriesService.findAllCategoriesNoPaginable());
+  public ResponseEntity<List<IRequesCategory>> findAll(){
+    List<Categories> list = categoriesService.findAllCategoriesNoPaginable();
+    return ResponseEntity.ok(list.stream().map(cat -> new IRequesCategory(cat)).collect(Collectors.toList()));
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Categories> findOne(@PathVariable UUID id){
-    Categories findById = categoriesService.findId(id);
-    return ResponseEntity.ok(findById);
+  public ResponseEntity<IRequesCategory> findOne(@PathVariable UUID id){
+    return ResponseEntity.ok(categoriesService.findId(id)); 
   }
 
   @PostMapping
-  public ResponseEntity<Categories> create(@RequestBody IRequestCreateCategory category){
-    var obj = new Categories();
-    BeanUtils.copyProperties(category, obj);
-    obj.setName(category.getName());
-    return new ResponseEntity<Categories>(categoriesService.create(obj), HttpStatus.CREATED);
+  public ResponseEntity<IRequesCategory> create(@RequestBody IRequesCategory category){
+    IRequesCategory createCategoryRequest = categoriesService.create(category);
+    return new ResponseEntity<IRequesCategory>(createCategoryRequest, HttpStatus.CREATED);
   }
   @PutMapping
-  public ResponseEntity<Categories> update (@RequestBody IRequestUpdateCategory category){
-    var obj = new Categories();
-    BeanUtils.copyProperties(category, obj);
-    obj.setId(category.getId());
-    obj.setName(category.getName());
-    return new ResponseEntity<>(categoriesService.update(obj), HttpStatus.OK);
+  public ResponseEntity<IRequesCategory> update (@RequestBody IRequesCategory category){
+    return new ResponseEntity<>(categoriesService.update(category), HttpStatus.OK);
   }
 
   @DeleteMapping("/{id}")
